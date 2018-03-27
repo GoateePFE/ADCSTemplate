@@ -47,6 +47,11 @@ See the \Examples directory for
 * `Build-ADCS.ps1` DSC example for a full Active Directory domain controller build with Certificate Services and two sample templates.
 * `PowerShellCMS.json` a sample JSON output file you can use to create templates for PowerShell Cryptographic Message Syntax cmdlets and encryption credentials in DSC.
 
+# Requirements
+* PowerShell 5.x
+* Tested on Windows Server 2012 R2 & 2016
+* Enterprise Administrator rights
+
 # Credits
 Created by Ashley McGlone
 
