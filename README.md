@@ -3,6 +3,8 @@ Find all code and samples at this location: [https://github.com/GoateePFE/ADCSTe
 # ADCSTemplate
 A PowerShell module for exporting, importing, removing, permissioning, publishing Active Directory Certificate Templates.
 It also includes a DSC resource for creating AD CS templates using these functions.
+This was built with the intent of using DSC for rapid lab builds, 
+but it could also be used in production environments to move templates between AD CS environments.
 
 # Problem
 Aren't you tired of using the Active Directory Certificate Services graphical interface to create and publish new certificate templates? Me too! I can build a domain controller and certificate server with DSC, but then I get stuck with manually creating the custom certificate templates for my environment. A popular example is the Document Encryption certificate used for DSC credential encryption and the CMS encryption cmdlets. You probably have some custom certificate templates unique to your company as well. No more right click, duplicate, permission, publish!
