@@ -10,8 +10,8 @@ configuration CreateADDomainWithCS
         [Parameter(Mandatory)]
         [System.Management.Automation.PSCredential]$AdminCreds,
 
-        [Int]$RetryCount = 5,
-        [Int]$RetryIntervalSec = 3
+        [Int]$RetryCount = 60,
+        [Int]$RetryIntervalSec = 5
     ) 
     
     Import-DscResource -ModuleName PSDesiredStateConfiguration
