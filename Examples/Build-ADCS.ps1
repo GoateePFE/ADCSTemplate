@@ -55,6 +55,7 @@ configuration CreateADDomainWithCS
             DomainName = $DomainName
             DomainAdministratorCredential = $DomainCreds
             SafemodeAdministratorPassword = $DomainCreds
+            DomainNetbiosName = ($DomainName -split '\.')[0]
             DependsOn = "[WindowsFeature]ADDSInstall"
         }
 <#
