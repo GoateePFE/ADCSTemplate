@@ -49,7 +49,8 @@ See the \Examples directory for
 
 # Requirements
 * PowerShell 5.x
-* Tested on Windows Server 2012 R2 & 2016
+* Tested on Windows Server 2012 R2
+* Tested on Windows Server 2016 (issues with the xActiveDirectory module here, but the ADCSTemplate DSC works just fine)
 * Enterprise Administrator rights
 
 # Credits
