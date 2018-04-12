@@ -21,7 +21,7 @@ param ($cn,$TemplateOID,$Server,$ConfigNC)
 Function New-TemplateOID {
 Param($Server,$ConfigNC)
     <#
-    OID CN/Name                    [10000000-99999999].[32 hex characters]
+    OID CN/Name                                                         [10000000-99999999].[32 hex characters (MD5hash)]
     OID msPKI-Cert-Template-OID    [Forest base OID].[1000000-99999999].[10000000-99999999]  <--- second number same as first number in OID name
     #>
     do {
@@ -136,11 +136,13 @@ param(
         $account = New-Object System.Security.Principal.NTAccount($Group)
         $sid     = $account.Translate([System.Security.Principal.SecurityIdentifier])
 
-        # Read
-        $ObjectType = [GUID]'00000000-0000-0000-0000-000000000000'
-        $ace        = New-Object System.DirectoryServices.ActiveDirectoryAccessRule `
-            $sid, 'GenericRead', $Type, $ObjectType, 'None', $InheritedObjectType
-        $acl.AddAccessRule($ace)
+        If ($Type -ne 'Deny') {
+            # Read, but only if Allow
+            $ObjectType = [GUID]'00000000-0000-0000-0000-000000000000'
+            $ace        = New-Object System.DirectoryServices.ActiveDirectoryAccessRule `
+                $sid, 'GenericRead', $Type, $ObjectType, 'None', $InheritedObjectType
+            $acl.AddAccessRule($ace)
+        }
 
         If ($Enroll) {
             $ObjectType = [GUID]'0e10c968-78fb-11d2-90d4-00c04f79dc55'
@@ -201,13 +203,11 @@ param(
     [string]$Server = (Get-ADDomainController -Discover -ForceDiscover -Writable).HostName[0],
     [switch]$Detailed   # Detailed output is not required for export/import. Use for documentation/backup purposes.
 )
-    $ConfigNC     = $((Get-ADRootDSE -Server $Server).configurationNamingContext)
-    $TemplatePath = "CN=$DisplayName,CN=Certificate Templates,CN=Public Key Services,CN=Services,$ConfigNC"
     If ($Detailed) {
-        Get-ADObject -Identity $TemplatePath -Properties * -Server $Server |
+        Get-ADCSTemplate -DisplayName $DisplayName -Server $Server |
             ConvertTo-Json
     } Else {
-        Get-ADObject -Identity $TemplatePath -Properties * -Server $Server |
+        Get-ADCSTemplate -DisplayName $DisplayName -Server $Server |
             Select-Object -Property name, displayName, objectClass, flags, revision, *pki* |
             ConvertTo-Json
     }
@@ -338,7 +338,8 @@ param(
         }
     }
     $TemplatePath = "CN=Certificate Templates,CN=Public Key Services,CN=Services,$ConfigNC"
-    New-ADObject -Path $TemplatePath -OtherAttributes $oa -Name $DisplayName -DisplayName $DisplayName -Type pKICertificateTemplate -Server $Server
+    New-ADObject -Path $TemplatePath -OtherAttributes $oa -Name $DisplayName.Replace(' ','') `
+        -DisplayName $DisplayName -Type pKICertificateTemplate -Server $Server
     #endregion
 
     #region PERMISSIONS
@@ -358,7 +359,7 @@ param(
         $EnrollmentPath = "CN=Enrollment Services,CN=Public Key Services,CN=Services,$ConfigNC"
         $CAs = Get-ADObject -SearchBase $EnrollmentPath -SearchScope OneLevel -Filter * -Server $Server
         ForEach ($CA in $CAs) {
-            Set-ADObject -Identity $CA.DistinguishedName -Add @{certificateTemplates=$DisplayName} -Server $Server
+            Set-ADObject -Identity $CA.DistinguishedName -Add @{certificateTemplates=$DisplayName.Replace(' ','')} -Server $Server
         }
     }
     #endregion
@@ -395,17 +396,18 @@ param(
     if ($pscmdlet.ShouldProcess($DisplayName, 'Remove certificate template')) {
         $ConfigNC = $((Get-ADRootDSE -Server $Server).configurationNamingContext)
 
+        $Template = Get-ADCSTemplate -DisplayName $DisplayName -Server $Server
+
         #region REMOVE ISSUE IF IT EXISTS
         $EnrollmentPath = "CN=Enrollment Services,CN=Public Key Services,CN=Services,$ConfigNC"
         $CAs = Get-ADObject -SearchBase $EnrollmentPath -SearchScope OneLevel -Filter * -Server $Server
         ForEach ($CA in $CAs) {
-            Set-ADObject -Identity $CA.DistinguishedName -Remove @{certificateTemplates=$DisplayName} -Server $Server -Confirm:$false
+            Set-ADObject -Identity $CA.DistinguishedName -Remove @{certificateTemplates=$Template.cn} -Server $Server -Confirm:$false
         }
         #endregion
 
         #region REMOVE TEMPLATE
-        $TemplatePath = "CN=$DisplayName,CN=Certificate Templates,CN=Public Key Services,CN=Services,$ConfigNC"
-        Remove-ADObject -Identity $TemplatePath -Server $Server -Confirm:$false
+        Remove-ADObject -Identity $Template.distinguishedName -Server $Server -Confirm:$false
         #endregion
 
         #region REMOVE OID

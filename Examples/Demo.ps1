@@ -2,7 +2,6 @@
 
 Get-Module -ListAvailable
 Import-Module ADCSTemplate
-Import-Module ADCSTemplate -Force
 Get-Command -Module ADCSTemplate
 
 # Manually open ADSIEDIT and show objects

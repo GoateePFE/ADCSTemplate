@@ -17,9 +17,9 @@ configuration CreateADDomainWithCS
     Import-DscResource -ModuleName PSDesiredStateConfiguration
     Import-DscResource -ModuleName xActiveDirectory -ModuleVersion 2.17.0.0
     Import-DscResource -ModuleName xAdcsDeployment -ModuleVersion 1.4.0.0
-    Import-DscResource -ModuleName ADCSTemplate -ModuleVersion 1.0
+    Import-DscResource -ModuleName ADCSTemplate -ModuleVersion 1.0.1.0
     
-    [System.Management.Automation.PSCredential ]$DomainCreds = New-Object System.Management.Automation.PSCredential ("$DomainName\$($AdminCreds.UserName)", $AdminCreds.Password)
+    [System.Management.Automation.PSCredential]$DomainCreds = New-Object System.Management.Automation.PSCredential ("$DomainName\$($AdminCreds.UserName)", $AdminCreds.Password)
 
     Node $AllNodes.NodeName
     {
