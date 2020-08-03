@@ -38,7 +38,7 @@ If you want to duplicate an existing template on the same server try this:
 
 If you want to export all templates try this:
 
-``` (Get-ADCSTemplate).name | ForEach-Object {"Exporting $_"; Export-ADCSTemplate -DisplayName $_ | Out-File .\$_.json -Force}```
+``` (Get-ADCSTemplate).DisplayName | ForEach-Object {"Exporting $_"; Export-ADCSTemplate -DisplayName $_ | Out-File .\$_.json -Force}```
 
 See the module function help texts for many clever use cases for this code, including a bonus function for creating a PSDrive to browse the objects in AD without using the GUI.
 
