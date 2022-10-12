@@ -325,6 +325,7 @@ param(
             } { $oa.Add($_,[System.Int32]$import.$_); break }
 
             { $_ -in 'msPKI-Certificate-Application-Policy',
+                    'msPKI-RA-Application-Policies',
                     'pKICriticalExtensions',
                     'pKIDefaultCSPs',
                     'pKIExtendedKeyUsage'
